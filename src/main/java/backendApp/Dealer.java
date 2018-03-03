@@ -6,12 +6,12 @@ public class Dealer {
 
     private String id;
     private String name;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private List<Vehicle> vehicles;
     private List<String> closed;
 
-    public Dealer(String id, String name, double latitude, double longitude, List<Vehicle> vehicles, List<String> closed) {
+    public Dealer(String id, String name, Double latitude, Double longitude, List<Vehicle> vehicles, List<String> closed) {
         this.id = id;
         this.name = name;
         this.latitude = latitude;
@@ -36,19 +36,19 @@ public class Dealer {
         this.name = name;
     }
 
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 

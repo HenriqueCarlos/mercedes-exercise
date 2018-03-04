@@ -1,5 +1,8 @@
 package backendApp;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +63,31 @@ public class Vehicle {
         this.availability = availability;
     }
 
+    public JSONObject getAvailabilityJSON(){
+        JSONObject returnJSON = new JSONObject();
+        for (Object key : this.availability.keySet()){
+            String dayOfWeek = (String) key;
+            List<String> hoursList =  availability.get(dayOfWeek);
+            JSONArray hoursArray = new JSONArray();
+            for( String hour : hoursList){
+                hoursArray.add(hour);
+            }
+            returnJSON.put(dayOfWeek,hoursArray);
+        }
+        return  returnJSON;
+
+    }
+
+    public JSONObject getJSON(){
+        JSONObject vehicleJSON = new JSONObject();
+        vehicleJSON.put("id", this.id);
+        vehicleJSON.put("model", this.model);
+        vehicleJSON.put("fuel", this.fuel);
+        vehicleJSON.put("transmission", this.transmission);
+        vehicleJSON.put("availability", this.getAvailabilityJSON());
+        return vehicleJSON;
+    }
+
     /*public boolean equalsModel(Vehicle vehicle) {
         return vehicle.getFuel().equals(this.fuel) && vehicle.getTransmission().equals(this.transmission)
                 && vehicle.getModel().equals(this.model);
@@ -78,6 +106,28 @@ public class Vehicle {
         public int compare(Vehicle v1, Vehicle v2) {
             String v1Model = v1.getModel().toUpperCase();
             String v2Model = v2.getModel().toUpperCase();
+
+            //ascending order
+            return v1Model.compareTo(v2Model);
+        }
+    };
+
+    public static Comparator<Vehicle> comparatorByFuel = new Comparator<Vehicle>() {
+
+        public int compare(Vehicle v1, Vehicle v2) {
+            String v1Model = v1.getFuel().toUpperCase();
+            String v2Model = v2.getFuel().toUpperCase();
+
+            //ascending order
+            return v1Model.compareTo(v2Model);
+        }
+    };
+
+    public static Comparator<Vehicle> comparatorByTransmission = new Comparator<Vehicle>() {
+
+        public int compare(Vehicle v1, Vehicle v2) {
+            String v1Model = v1.getTransmission().toUpperCase();
+            String v2Model = v2.getTransmission().toUpperCase();
 
             //ascending order
             return v1Model.compareTo(v2Model);

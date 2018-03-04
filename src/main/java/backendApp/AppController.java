@@ -13,6 +13,19 @@ public class AppController {
         return appManager.listByModel();
     }
 
+    @GetMapping("/listByFuel")
+    public JSONObject listByFuel(){
+        return appManager.listByFuel();
+    }
 
+    @GetMapping("/listByTransmission")
+    public JSONObject listByTransmission(){
+        return appManager.listByTransmission();
+    }
+
+    @GetMapping("/listByDealer")
+    public JSONObject listByDealer(){
+        return appManager.listByDealer();
+    }
 
 }

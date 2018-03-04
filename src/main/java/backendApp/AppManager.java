@@ -126,4 +126,70 @@ public class AppManager {
         }
         return returnJSON;
     }
+
+    public JSONObject listByFuel(){
+        Collections.sort(this.vehicles,Vehicle.comparatorByFuel);
+        JSONObject returnJSON = new JSONObject();
+        JSONArray  arrayJSON = new JSONArray();
+        for(int i = 0;i< this.vehicles.size();i++){
+            Vehicle vehicle = this.vehicles.get(i);
+            JSONObject auxJSON = new JSONObject();
+            auxJSON.put("transmission", vehicle.getTransmission());
+            auxJSON.put("model", vehicle.getModel());
+            arrayJSON.add(auxJSON);
+            if(i==this.vehicles.size()-1){
+                returnJSON.put(vehicle.getFuel(),arrayJSON);
+                break;
+            }
+            Vehicle nextVehicle = this.vehicles.get(i+1);
+            if(!vehicle.getFuel().equals(nextVehicle.getFuel())){
+                returnJSON.put(vehicle.getFuel(),arrayJSON);
+                arrayJSON = new JSONArray();
+            }
+        }
+        return returnJSON;
+
+    }
+
+    public JSONObject listByTransmission(){
+        Collections.sort(this.vehicles,Vehicle.comparatorByTransmission);
+        JSONObject returnJSON = new JSONObject();
+        JSONArray  arrayJSON = new JSONArray();
+        for(int i = 0;i< this.vehicles.size();i++){
+            Vehicle vehicle = this.vehicles.get(i);
+            JSONObject auxJSON = new JSONObject();
+            auxJSON.put("model", vehicle.getModel());
+            auxJSON.put("fuel", vehicle.getFuel());
+            arrayJSON.add(auxJSON);
+            if(i==this.vehicles.size()-1){
+                returnJSON.put(vehicle.getTransmission(),arrayJSON);
+                break;
+            }
+            Vehicle nextVehicle = this.vehicles.get(i+1);
+            if(!vehicle.getTransmission().equals(nextVehicle.getTransmission())){
+                returnJSON.put(vehicle.getTransmission(),arrayJSON);
+                arrayJSON = new JSONArray();
+            }
+        }
+        return returnJSON;
+
+    }
+
+
+    public JSONObject listByDealer(){
+        JSONObject returnJSON = new JSONObject();
+
+        for( Dealer dealer : this.dealers){
+
+            List<Vehicle> vehiclesArray = dealer.getVehicles();
+            JSONArray vehiclesJSONArray = new JSONArray();
+
+            for( Vehicle vehicle : vehiclesArray){
+                vehiclesJSONArray.add(vehicle.getJSON());
+            }
+            returnJSON.put(dealer.getName(),vehiclesJSONArray);
+        }
+        return returnJSON;
+
+    }
 }

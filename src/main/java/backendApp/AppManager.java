@@ -8,12 +8,15 @@ import org.json.simple.parser.ParseException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class AppManager {
 
     private List<Dealer> dealers;
-    private List<Booking> bookings;
+    private HashMap<String,Index> bookingsIdMap;
+    private HashMap<Index, Booking> bookings;
     private List<Vehicle> vehicles;
 
     //This is to insure that the class is a singleton
@@ -28,13 +31,38 @@ public class AppManager {
     public AppManager() {
         JSONParser parser = new JSONParser();
         this.dealers = new ArrayList<Dealer>();
-        this.bookings = new ArrayList<Booking>();
         this.vehicles = new ArrayList<Vehicle>();
+        //The use of two hashMaps is to ensure a more efficient lookup method to the create and cancel operations
+        this.bookingsIdMap = new HashMap<String, Index>();
+        this.bookings = new HashMap<Index, Booking>();
 
         try{
             Object obj = parser.parse(new FileReader("./src/main/resources/dataset.json"));
             JSONObject jsonObject = (JSONObject) obj;
             JSONArray dealersArray = (JSONArray) jsonObject.get("dealers"); //List of dealers from JSON
+            JSONArray bookingsArray = (JSONArray) jsonObject.get("bookings"); //List of bookings from JSON
+
+            DateFormat pickupFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            DateFormat createdAtFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            //Iterate the bookings Array
+            for(Object booking : bookingsArray){
+                JSONObject newBooking = (JSONObject) booking;
+                String id = (String) newBooking.get("id");
+                String vehicleId = (String) newBooking.get("vehicleId");
+                String firstName = (String) newBooking.get("firstName");
+                String lastName = (String) newBooking.get("lastName");
+                Date pickupDate = pickupFormatter.parse((String)newBooking.get("pickupDate"));
+                Date createdAt = createdAtFormatter.parse((String)newBooking.get("createdAt"));
+                Booking bookingObj = new Booking(id,vehicleId,firstName,lastName, pickupDate,createdAt);
+                Index index = new Index(vehicleId,pickupDate.toString());
+                this.bookingsIdMap.put(id,index);
+                this.bookings.put(index,bookingObj);
+
+
+            }
+
+
+
 
             //Iterate the dealers Array
             for(Object dealer : dealersArray){
@@ -78,8 +106,7 @@ public class AppManager {
 
                     //I will create a new object but without id or availability, this is for the listBy method of the API
                     Vehicle vehicleSimplified = vehicleObj;
-                    //vehicleSimplified.setAvailability(null);
-                    //vehicleSimplified.setId(null);
+
                     //This is to ensure that one and only one model, fuel,transmission combination is inserted
                     if(!this.vehicles.contains(vehicleSimplified)){
                         this.vehicles.add(vehicleSimplified);
@@ -98,6 +125,8 @@ public class AppManager {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (java.text.ParseException e) {
             e.printStackTrace();
         }
     }
@@ -185,11 +214,27 @@ public class AppManager {
             JSONArray vehiclesJSONArray = new JSONArray();
 
             for( Vehicle vehicle : vehiclesArray){
-                vehiclesJSONArray.add(vehicle.getJSON());
+                vehiclesJSONArray.add(vehicle.toJSON());
             }
             returnJSON.put(dealer.getName(),vehiclesJSONArray);
         }
         return returnJSON;
 
     }
+
+    public JSONObject findClosestDealer(Double latitude, Double longitude, String model, String fuel, String transmission){
+        JSONObject closestDealer = new JSONObject();
+        Double minDistance = Double.MAX_VALUE;
+        for(Dealer dealer : this.dealers){
+            if(dealer.hasVehicle(model,transmission,fuel)){
+                if(dealer.getDistance(latitude,longitude) < minDistance){
+                    closestDealer = dealer.toJSON();
+                }
+            }
+        }
+        return closestDealer;
+
+    }
+
+
 }

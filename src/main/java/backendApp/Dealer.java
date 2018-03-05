@@ -1,5 +1,8 @@
 package backendApp;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import java.util.List;
 
 public class Dealer {
@@ -66,5 +69,39 @@ public class Dealer {
 
     public void setClosed(List<String> closed) {
         this.closed = closed;
+    }
+
+    public Double getDistance(Double latitude, Double longitude){
+        return Math.hypot(latitude-this.latitude, longitude-this.longitude);
+
+    }
+
+    public boolean hasVehicle(String model, String transmission, String fuel){
+        for (Vehicle vehicle : this.vehicles){
+            if(vehicle.compareAtributes(model,transmission,fuel)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public JSONObject toJSON(){
+        JSONObject returnJSON = new JSONObject();
+        returnJSON.put("id", this.id);
+        returnJSON.put("name", this.name);
+        returnJSON.put("latitude", this.latitude);
+        returnJSON.put("longitude", this.longitude);
+        JSONArray closedArray = new JSONArray();
+        for( String day : this.closed){
+            closedArray.add(day);
+        }
+        returnJSON.put("closed", closedArray);
+        JSONArray vehiclesArray = new JSONArray();
+        for( Vehicle vehicle : this.vehicles){
+            vehiclesArray.add(vehicle.toJSON());
+        }
+        returnJSON.put("vehicles", vehiclesArray);
+
+        return returnJSON;
     }
 }

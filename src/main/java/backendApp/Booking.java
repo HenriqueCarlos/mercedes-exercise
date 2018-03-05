@@ -5,7 +5,7 @@ import java.util.Date;
 public class Booking {
 
     private String id;
-    private String vehicleid;
+    private String vehicleId;
     private String firstName;
     private String lastName;
     private Date pickupDate;
@@ -13,9 +13,18 @@ public class Booking {
     private Date cancelledAt;
     private String cancelledReason;
 
-    public Booking(String id, String vehicleid, String firstName, String lastName, Date pickupDate, Date createdAt, Date cancelledAt, String cancelledReason) {
+    public Booking(String id, String vehicleId, String firstName, String lastName, Date pickupDate, Date createdAt) {
         this.id = id;
-        this.vehicleid = vehicleid;
+        this.vehicleId = vehicleId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.pickupDate = pickupDate;
+        this.createdAt = createdAt;
+    }
+
+    public Booking(String id, String vehicleId, String firstName, String lastName, Date pickupDate, Date createdAt, Date cancelledAt, String cancelledReason) {
+        this.id = id;
+        this.vehicleId = vehicleId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.pickupDate = pickupDate;
@@ -32,12 +41,12 @@ public class Booking {
         this.id = id;
     }
 
-    public String getVehicleid() {
-        return vehicleid;
+    public String getvehicleId() {
+        return vehicleId;
     }
 
-    public void setVehicleid(String vehicleid) {
-        this.vehicleid = vehicleid;
+    public void setvehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
     }
 
     public String getFirstName() {

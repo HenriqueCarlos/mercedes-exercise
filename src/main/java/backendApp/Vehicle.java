@@ -78,7 +78,7 @@ public class Vehicle {
 
     }
 
-    public JSONObject getJSON(){
+    public JSONObject toJSON(){
         JSONObject vehicleJSON = new JSONObject();
         vehicleJSON.put("id", this.id);
         vehicleJSON.put("model", this.model);
@@ -99,6 +99,11 @@ public class Vehicle {
     public boolean equals(Object obj) {
         Vehicle v1 = (Vehicle) obj;
         return v1.getModel().equals(this.model) && v1.getTransmission().equals(this.transmission) && v1.getFuel().equals(this.fuel);
+    }
+
+    public boolean compareAtributes(String model, String transmission, String fuel){
+        return model.equals(this.model) && transmission.equals(this.transmission) && fuel.equals(this.fuel);
+
     }
 
     public static Comparator<Vehicle> comparatorByModel = new Comparator<Vehicle>() {

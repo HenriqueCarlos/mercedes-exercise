@@ -20,6 +20,7 @@ public class Booking {
         this.lastName = lastName;
         this.pickupDate = pickupDate;
         this.createdAt = createdAt;
+        this.cancelledAt = null;
     }
 
     public Booking(String id, String vehicleId, String firstName, String lastName, Date pickupDate, Date createdAt, Date cancelledAt, String cancelledReason) {

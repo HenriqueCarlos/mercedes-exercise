@@ -2,9 +2,9 @@ package backendApp;
 
 public class Index {
     /* This class is to use as index in the hashmaps, with this I can have an efficient lookup for bookings*/
-
-    private String x;
-    private String y;
+    // this class is generic so it can be used for future needs
+    private String x; //In this particular case vehicleId
+    private String y; //In this particular case pickupDate
 
     public Index(String x, String y) {
         this.x = x;

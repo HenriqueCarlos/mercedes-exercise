@@ -1,9 +1,11 @@
 package backendApp;
 
 import org.json.simple.JSONObject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @RestController
 public class AppController {
@@ -34,6 +36,15 @@ public class AppController {
                                         @RequestParam String transmission, @RequestParam String fuel){
         return appManager.findClosestDealer(latitude, longitude, model, fuel, transmission);
 
+    }
+    @GetMapping("/createBooking")
+    public String createBooking(@RequestParam String vehicleId, @RequestParam String firstName, @RequestParam String lastName, @RequestParam String pickupDate){
+        return appManager.createBooking(vehicleId,firstName,lastName,pickupDate);
+    }
+
+    @GetMapping("/cancelBooking")
+    public String cancelBooking(@RequestParam String id, @RequestParam String reason){
+        return appManager.cancelBooking(id,reason);
     }
 
 }

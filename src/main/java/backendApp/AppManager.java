@@ -18,6 +18,9 @@ public class AppManager {
     private HashMap<String,Index> bookingsIdMap;
     private HashMap<Index, Booking> bookings;
     private List<Vehicle> vehicles;
+    private HashMap<String,Vehicle> idMapVehicle;
+    private HashMap<String,Dealer> idMapDealer;
+
 
     //This is to insure that the class is a singleton
     private static AppManager instance = null;
@@ -32,9 +35,11 @@ public class AppManager {
         JSONParser parser = new JSONParser();
         this.dealers = new ArrayList<Dealer>();
         this.vehicles = new ArrayList<Vehicle>();
-        //The use of two hashMaps is to ensure a more efficient lookup method to the create and cancel operations
+        //The use of four hashMaps is to ensure a more efficient lookup method to the create and cancel operations
         this.bookingsIdMap = new HashMap<String, Index>();
         this.bookings = new HashMap<Index, Booking>();
+        this.idMapDealer = new HashMap<String, Dealer>();
+        this.idMapVehicle = new HashMap<String, Vehicle>();
 
         try{
             Object obj = parser.parse(new FileReader("./src/main/resources/dataset.json"));
@@ -104,17 +109,19 @@ public class AppManager {
                     Vehicle vehicleObj = new Vehicle(vehicleId, model, fuel, transmission, availabilityMap);
                     vehiclesList.add(vehicleObj);
 
-                    //I will create a new object but without id or availability, this is for the listBy method of the API
-                    Vehicle vehicleSimplified = vehicleObj;
 
                     //This is to ensure that one and only one model, fuel,transmission combination is inserted
-                    if(!this.vehicles.contains(vehicleSimplified)){
-                        this.vehicles.add(vehicleSimplified);
+                    if(!this.vehicles.contains(vehicleObj)){
+                        this.vehicles.add(vehicleObj);
                     }
+                    this.idMapVehicle.put(vehicleId,vehicleObj);
                 }
 
                 Dealer dealerObj = new Dealer(id,name,latitude,longitude,vehiclesList,closedList);
                 this.dealers.add(dealerObj);
+                for(Vehicle vehicle : dealerObj.getVehicles()){
+                    this.idMapDealer.put(vehicle.getId(), dealerObj);
+                }
 
 
             }
@@ -236,5 +243,79 @@ public class AppManager {
 
     }
 
+    public String createBooking(String vehicleId, String firstName, String lastName, String pickupDate){
+        Index index = new Index(vehicleId,pickupDate);
+        String statusCode = "Booking could not be created. Please choose a new date.";
+        String uniqueID = UUID.randomUUID().toString();
+        if(this.bookings.containsKey(index)){
+            Booking newBooking = this.bookings.get(index);
+            if(newBooking.getCancelledAt()!=null){ //means that exists but has been canceled, so we can delete it to make a new one
+                this.bookingsIdMap.remove(newBooking.getId());
+                this.bookings.remove(index);
+            }
+            else{
+                statusCode = "This vehicle is already booked for this date. Please choose a new date.";
+                return statusCode;
+            }
+        }
+        Dealer dealer = this.idMapDealer.get(vehicleId);
+        if(dealer==null){
+            statusCode = "This vehicle does not exist!";
+            return statusCode;
+        }
+        Vehicle vehicle = this.idMapVehicle.get(vehicleId);
+        DateFormat dayOfWeekFormatter = new SimpleDateFormat("EEEE");
+        DateFormat pickupFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        Date pickup = null;
+        try {
+            pickup = pickupFormatter.parse(pickupDate);
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+        String dayOfWeek = dayOfWeekFormatter.format(pickup).toLowerCase();
+        if(dealer.getClosed().contains(dayOfWeek)){  //check if the dealer is closed on the pickup date
+            statusCode = "Dealer closed on this date. Please choose a new date.";
+            return statusCode;
+        }
+        if(vehicle.getAvailability().containsKey(dayOfWeek)){  //check if the car has availabilty
+            List<String> hoursAvailable = vehicle.getAvailability().get(dayOfWeek);
+            SimpleDateFormat hoursFormatter = new SimpleDateFormat("HHmm");
+            String pickupHours = hoursFormatter.format(pickup);
+            if(hoursAvailable.contains(pickupHours)){
+
+                DateFormat createdAtFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                Date createdAt = new Date(); //this is created with current date
+                createdAtFormatter.format(createdAt);
+                Booking booking = new Booking(uniqueID, vehicleId, firstName,lastName, pickup, createdAt);
+                this.bookingsIdMap.put(uniqueID,index);
+                this.bookings.put(index,booking);
+                statusCode = "Booking created successfully! ID created: " + uniqueID;
+                return statusCode;
+
+            }
+        }
+        return statusCode;
+
+    }
+
+
+    public String cancelBooking(String id, String reason){
+
+        Index index = this.bookingsIdMap.get(id);
+        if(index == null){
+            return "This booking does not exist.";
+        }
+        Booking booking = this.bookings.get(index);
+        if(booking.getCancelledAt()!= null){
+            return "Booking already been cancelled.";
+        }
+        DateFormat createdAtFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        Date cancelledAt = new Date(); //this is created with current date
+        createdAtFormatter.format(cancelledAt);
+        booking.setCancelledAt(cancelledAt);
+        booking.setCancelledReason(reason);
+        this.bookings.replace(index,booking);
+        return "Booking cancelled successfully";
+    }
 
 }

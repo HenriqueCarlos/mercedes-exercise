@@ -234,8 +234,10 @@ public class AppManager {
         Double minDistance = Double.MAX_VALUE;
         for(Dealer dealer : this.dealers){
             if(dealer.hasVehicle(model,transmission,fuel)){
-                if(dealer.getDistance(latitude,longitude) < minDistance){
+                Double newDistance = dealer.getDistance(latitude,longitude);
+                if( newDistance < minDistance){
                     closestDealer = dealer.toJSON();
+                    minDistance = newDistance;
                 }
             }
         }
@@ -289,7 +291,7 @@ public class AppManager {
                 Booking booking = new Booking(uniqueID, vehicleId, firstName,lastName, pickup, createdAt);
                 this.bookingsIdMap.put(uniqueID,index);
                 this.bookings.put(index,booking);
-                statusCode = "Booking created successfully! ID created: " + uniqueID;
+                statusCode = "Booking created successfully!";
                 return statusCode;
 
             }
@@ -315,7 +317,7 @@ public class AppManager {
         booking.setCancelledAt(cancelledAt);
         booking.setCancelledReason(reason);
         this.bookings.replace(index,booking);
-        return "Booking cancelled successfully";
+        return "Booking cancelled successfully!";
     }
 
 }

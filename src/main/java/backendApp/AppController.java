@@ -3,9 +3,7 @@ package backendApp;
 import org.json.simple.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
-import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @RestController
 public class AppController {
